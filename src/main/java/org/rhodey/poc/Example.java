@@ -20,7 +20,7 @@ public class Example {
     RedisWriteService redisWrite = new RedisWriteService();
 
     List<EventHandler> processors = new LinkedList<>();
-    processors.add(new DisruptorHandler(redisWrite, psql.getConnections()));
+    processors.add(new DisruptorHandler(redisWrite, psql.getConnection()));
 
     WaitStrategy strategy = new BlockingWaitStrategy();
     DisruptorService disruptor = new DisruptorService(strategy, processors.toArray(new EventHandler[processors.size()]));

@@ -1,31 +1,28 @@
 package org.rhodey.poc.psql;
 
-import io.r2dbc.spi.ConnectionFactory;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.RowMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
 
-import java.util.function.BiFunction;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 class PsqlRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(PsqlRunnable.class);
-    private final ConnectionFactory connections;
+    private final Connection connection;
 
-    public PsqlRunnable(ConnectionFactory connections) {
-        this.connections = connections;
+    public PsqlRunnable(Connection connection) {
+        this.connection = connection;
     }
 
     @Override
     public void run() {
-        BiFunction<Row, RowMetadata, String> mapper = (row, rowMetadata) -> {
-            log.info("psql test thread returned: " + row.get(0));
-            return "please do not make me use io.projectreactor";
-        };
-
-        Mono.from(connections.create())
-                .flatMap(c -> Mono.from(c.createStatement("select 123").execute()))
-                .flatMap(result -> Mono.from(result.map(mapper))).subscribe();
+        try {
+            ResultSet results = connection.prepareStatement("select 123").executeQuery();
+            results.next();
+            log.info("psql test thread returned: " + results.getInt(1));
+        } catch (SQLException e) {
+            log.error("error - psql query failed", e);
+        }
     }
 }

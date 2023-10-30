@@ -1,5 +1,5 @@
 # jasyncdebug
-Debugging problem with using [lmax disruptor](https://github.com/LMAX-Exchange/disruptor) with [r2dbc-postgresql](https://github.com/pgjdbc/r2dbc-postgresql). Demonstration utilizes Java 11, lmax 4.0.0, and r2dbc-postgresql 0.8.10.RELEASE
+Debugging problem with using [lmax disruptor](https://github.com/LMAX-Exchange/disruptor) with [jdbc-postgresql](https://mvnrepository.com/artifact/org.postgresql/postgresql). Demonstration utilizes Java 11, lmax 4.0.0, and jdbc postgresql 42.6.0.RELEASE
 
 ## Configure
 ```
@@ -30,7 +30,7 @@ echo "publish test_read 123" | nc -N localhost 6379
 
 ## Output When Config `do_error=false`
 ```
-jasyncdebug    | [reactor-tcp-nio-1] INFO org.rhodey.poc.psql.PsqlRunnable - psql test thread returned: 123
+jasyncdebug    | [Thread-0] INFO org.rhodey.poc.psql.PsqlRunnable - psql test thread returned: 123
 jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - CHAN test_read
 jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - COUNT 1
 jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - before redis.publish()
@@ -44,21 +44,21 @@ jasyncdebug    | [redis-write-1] INFO org.rhodey.poc.disruptor.DisruptorHandler 
 ```
 
 ## Output When Config `do_error=true`
-The key demonstration here is that [DisruptorHandler.java is blocking forever on this line](https://github.com/rhodey/jasyncdebug/blob/r2dbc/src/main/java/org/rhodey/poc/disruptor/DisruptorHandler.java#L48)
+The key demonstration here is that [DisruptorHandler.java is blocking forever on this line](https://github.com/rhodey/jasyncdebug/blob/jdbc/src/main/java/org/rhodey/poc/disruptor/DisruptorHandler.java#L39)
 ```
-jasyncdebug    | [reactor-tcp-nio-1] INFO org.rhodey.poc.psql.PsqlRunnable - psql test thread returned: 123
+jasyncdebug    | [Thread-0] INFO org.rhodey.poc.psql.PsqlRunnable - psql test thread returned: 123
 jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - CHAN test_read
 jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - COUNT 1
 jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - before redis.publish()
 jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - after redis.publish()
-jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - before psql.create()
+jasyncdebug    | [disruptor-0] INFO org.rhodey.poc.disruptor.DisruptorHandler - before psql.prepareStatement()
 jasyncdebug    | [redis-write-1] INFO org.rhodey.poc.disruptor.DisruptorHandler - redis write success
 ```
 
 ## Additional Detail of Interest
 As with the previous jasync example a working test of r2dbc plus threading is included:
-  + [here](https://github.com/rhodey/jasyncdebug/blob/r2dbc/src/main/java/org/rhodey/poc/psql/PsqlService.java#L40)
-  + [and here](https://github.com/rhodey/jasyncdebug/blob/r2dbc/src/main/java/org/rhodey/poc/psql/PsqlRunnable.java#L23)
+  + [here](https://github.com/rhodey/jasyncdebug/blob/jdbc/src/main/java/org/rhodey/poc/psql/PsqlService.java#L33)
+  + [and here](https://github.com/rhodey/jasyncdebug/blob/jdbc/src/main/java/org/rhodey/poc/psql/PsqlRunnable.java#L23)
 
 ## License
 MIT - Copyright 2023 mike@rhodey.org

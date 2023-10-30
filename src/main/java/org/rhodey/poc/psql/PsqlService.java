@@ -1,56 +1,54 @@
 package org.rhodey.poc.psql;
 
-import io.r2dbc.spi.*;
 import org.rhodey.poc.util.Service;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.concurrent.*;
-
-import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 public class PsqlService implements Service {
     private final CompletableFuture<Void> shutdownFuture = new CompletableFuture<>();
-    private ConnectionFactory connections;
+    private Connection connection;
 
     @Override
     public CompletableFuture<Void> shutdownFuture() {
         return shutdownFuture;
     }
 
-    public ConnectionFactory getConnections() {
-        return connections;
+    public Connection getConnection() {
+        return connection;
     }
 
     @Override
-    public void start() {
+    public void start() throws SQLException {
         String host = System.getenv("psql_host");
         String port = System.getenv("psql_port");
         String user = System.getenv("psql_user");
         String pass = System.getenv("psql_pass");
         String db = System.getenv("psql_db");
+        String uri = "jdbc:postgresql://" + host + ":" + port + "/" + db;
+        connection = DriverManager.getConnection(uri, user, pass);
 
-        connections = ConnectionFactories.get(ConnectionFactoryOptions.builder()
-                .option(DRIVER, "postgresql")
-                .option(HOST, host)
-                .option(PORT, Integer.parseInt(port))
-                .option(USER, user)
-                .option(PASSWORD, pass)
-                .option(DATABASE, db)
-                .build());
-
-        Thread testThread = new Thread(new PsqlRunnable(connections));
-        testThread.setDaemon(true);
-        testThread.start();
+        Thread test = new Thread(new PsqlRunnable(connection));
+        test.setDaemon(true);
+        test.start();
     }
 
     @Override
     public boolean shutdown(Throwable e) {
-        if (!shutdownFuture.isDone()) {
-            if (e != null) {
-                return shutdownFuture.completeExceptionally(e);
-            } else {
-                return shutdownFuture.complete(null);
+        try {
+            if (!shutdownFuture.isDone()) {
+                if (connection != null) { connection.close(); }
+                if (e != null) {
+                    return shutdownFuture.completeExceptionally(e);
+                } else {
+                    return shutdownFuture.complete(null);
+                }
             }
+            return false;
+        } catch (SQLException ee) {
+            return shutdownFuture.completeExceptionally(ee);
         }
-        return false;
     }
 }
