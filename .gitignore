@@ -1,0 +1,7 @@
+logback.xml
+*target*
+.idea/
+*.iml
+*swp
+.env
+.env2
