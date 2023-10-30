@@ -3,7 +3,6 @@ package org.rhodey.poc.disruptor;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.jetbrains.annotations.NotNull;
 import org.rhodey.poc.util.Service;
 
 import java.util.concurrent.CompletableFuture;
@@ -83,7 +82,7 @@ public class DisruptorService implements Service, ExceptionHandler<DisruptorEven
   private static class DisruptorThreadFactory implements ThreadFactory {
     private final AtomicInteger count = new AtomicInteger();
     @Override
-    public Thread newThread(@NotNull Runnable runnable) {
+    public Thread newThread(Runnable runnable) {
       Thread thread = new Thread(runnable, "disruptor-" + count.getAndIncrement());
       thread.setDaemon(false);
       return thread;

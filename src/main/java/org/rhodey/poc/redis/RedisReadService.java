@@ -6,7 +6,6 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
-import org.jetbrains.annotations.NotNull;
 import org.rhodey.poc.util.Service;
 import org.rhodey.poc.disruptor.DisruptorEvent;
 
@@ -103,7 +102,7 @@ public class RedisReadService implements Service {
   private static class ReadThreadFactory implements ThreadFactory {
     private final AtomicInteger count = new AtomicInteger();
     @Override
-    public Thread newThread(@NotNull Runnable runnable) {
+    public Thread newThread(Runnable runnable) {
       Thread thread = new Thread(runnable, "redis-read-" + count.getAndIncrement());
       thread.setDaemon(true);
       return thread;
