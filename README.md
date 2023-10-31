@@ -1,5 +1,5 @@
 # jasyncdebug
-Debugging problem with using [lmax disruptor](https://github.com/LMAX-Exchange/disruptor) with [jdbc-postgresql](https://mvnrepository.com/artifact/org.postgresql/postgresql). Demonstration utilizes Java 11, lmax 4.0.0, and jdbc postgresql 42.6.0.RELEASE
+Debugging problem with using [lmax disruptor](https://github.com/LMAX-Exchange/disruptor) with [jdbc-postgresql](https://mvnrepository.com/artifact/org.postgresql/postgresql). Demonstration utilizes Java 11, lmax 4.0.0, and jdbc postgresql 42.6.0
 
 ## Configure
 ```
